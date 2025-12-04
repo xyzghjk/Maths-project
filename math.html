@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Advanced Math Solver</title>
+
+<style>
+    body {
+        font-family: Arial;
+        background: #eef1f5;
+        margin: 0;
+        padding: 0;
+    }
+    h1 { text-align:center; margin-top:25px; }
+    .menu, .solver {
+        width:90%; max-width:700px; margin:20px auto;
+        padding:20px; background:white; border-radius:10px;
+        box-shadow:0 2px 6px rgba(0,0,0,0.2);
+    }
+    .btn {
+        padding:15px; margin:6px 0; background:#fff;
+        cursor:pointer; border-radius:8px;
+        box-shadow:0 2px 4px rgba(0,0,0,0.2);
+        text-align:center; font-size:18px;
+    }
+    .btn:hover { background:#cfe0ff; }
+
+    input { width:60px; padding:7px; margin:4px; }
+    .matrix-row { margin-bottom:5px; }
+</style>
+
+</head>
+
+<body>
+
+<h1>Engineering Maths</h1>
+
+<div class="menu">
+    <div class="btn" onclick="show('add')">Matrix Addition</div>
+    <div class="btn" onclick="show('mul')">Matrix Multiplication</div>
+    <div class="btn" onclick="show('det')">Determinant Solver</div>
+    <div class="btn" onclick="show('linear')">Solve Linear Equations</div>
+    <div class="btn" onclick="show('eigen')">Eigenvalues (2×2 only)</div>
+</div>
+
+<div class="solver" id="add" style="display:none;">
+    <h2>Matrix Addition</h2>
+
+    <label>Select Size:</label>
+    <select id="addSize" onchange="generateMatrixInputs('add')">
+        <option value="2">2×2</option>
+        <option value="3">3×3</option>
+    </select><br><br>
+
+    <div id="addA"></div>
+    <div id="addB"></div>
+
+    <button onclick="addMatrix()">Solve</button>
+    <p id="addResult"></p>
+</div>
+
+<div class="solver" id="mul" style="display:none;">
+    <h2>Matrix Multiplication</h2>
+
+    <label>Select Size:</label>
+    <select id="mulSize" onchange="generateMatrixInputs('mul')">
+        <option value="2">2×2</option>
+        <option value="3">3×3</option>
+    </select><br><br>
+
+    <div id="mulA"></div>
+    <div id="mulB"></div>
+
+    <button onclick="mulMatrix()">Solve</button>
+    <p id="mulResult"></p>
+</div>
+
+<div class="solver" id="det" style="display:none;">
+    <h2>Determinant Solver</h2>
+
+    <label>Select Size:</label>
+    <select id="detSize" onchange="generateMatrixInputs('det')">
+        <option value="2">2×2</option>
+        <option value="3">3×3</option>
+    </select><br><br>
+
+    <div id="detA"></div>
+
+    <button onclick="detMatrix()">Solve</button>
+    <p id="detResult"></p>
+</div>
+
+<!-- LINEAR EQUATIONS -->
+<div class="solver" id="linear" style="display:none;">
+    <h2>Solve Linear Equations (3×3)</h2>
+
+    <p>Equations of the form:</p>
+    <p>a₁x + b₁y + c₁z = d₁</p>
+    <p>a₂x + b₂y + c₂z = d₂</p>
+    <p>a₃x + b₃y + c₃z = d₃</p><br>
+
+    <div id="linInputs">
+        <input id="l11"> <input id="l12"> <input id="l13"> <input id="l14"><br><br>
+        <input id="l21"> <input id="l22"> <input id="l23"> <input id="l24"><br><br>
+        <input id="l31"> <input id="l32"> <input id="l33"> <input id="l34"><br><br>
+    </div>
+
+    <button onclick="solveLinear()">Solve</button>
+    <p id="linearResult"></p>
+</div>
+
+<div class="solver" id="eigen" style="display:none;">
+    <h2>Eigenvalues (2×2 Only)</h2>
+
+    <div id="eigInputs">
+        <input id="e11"> <input id="e12"><br>
+        <input id="e21"> <input id="e22"><br><br>
+    </div>
+
+    <button onclick="eigenSolve()">Solve</button>
+    <p id="eigenResult"></p>
+</div>
+
+<script>
+
+function show(id){
+    document.querySelectorAll('.solver').forEach(div => div.style.display="none");
+    document.getElementById(id).style.display="block";
+}
+
+function generateMatrixInputs(type){
+    let size = document.getElementById(type + "Size").value;
+    let A = document.getElementById(type + "A");
+    let B = document.getElementById(type + "B");
+
+    if(A) A.innerHTML = "<h3>Matrix A:</h3>" + matrixInputHTML(type+"A", size);
+    if(B) B.innerHTML = "<h3>Matrix B:</h3>" + matrixInputHTML(type+"B", size);
+}
+
+function matrixInputHTML(prefix, size){
+    let html = "";
+    for(let i=1;i<=size;i++){
+        html += "<div class='matrix-row'>";
+        for(let j=1;j<=size;j++){
+            html += `<input id='${prefix}${i}${j}'>`;
+        }
+        html += "</div>";
+    }
+    return html;
+}
+
+// Read matrix
+function readMatrix(prefix, size){
+    let M = [];
+    for(let i=1;i<=size;i++){
+        let row = [];
+        for(let j=1;j<=size;j++){
+            row.push(parseFloat(document.getElementById(prefix+i+j).value));
+        }
+        M.push(row);
+    }
+    return M;
+}
+
+// Matrix Addition
+function addMatrix(){
+    let size = parseInt(addSize.value);
+    let A = readMatrix("addA", size);
+    let B = readMatrix("addB", size);
+
+    let C = [];
+    for(let i=0;i<size;i++){
+        C[i] = [];
+        for(let j=0;j<size;j++){
+            C[i][j] = A[i][j] + B[i][j];
+        }
+    }
+
+    addResult.innerHTML = "Result:<br>" + C.map(r=>r.join(" , ")).join("<br>");
+}
+
+// Matrix Multiplication
+function mulMatrix(){
+    let size = parseInt(mulSize.value);
+    let A = readMatrix("mulA", size);
+    let B = readMatrix("mulB", size);
+
+    let C = [];
+    for(let i=0;i<size;i++){
+        C[i] = [];
+        for(let j=0;j<size;j++){
+            let sum = 0;
+            for(let k=0;k<size;k++){
+                sum += A[i][k] * B[k][j];
+            }
+            C[i][j] = sum;
+        }
+    }
+
+    mulResult.innerHTML = "Result:<br>" + C.map(r=>r.join(" , ")).join("<br>");
+}
+
+// Determinant
+function detMatrix(){
+    let size = parseInt(detSize.value);
+    let A = readMatrix("detA", size);
+
+    let det = 0;
+
+    if(size === 2){
+        det = A[0][0]*A[1][1] - A[0][1]*A[1][0];
+    } else {
+        det =
+        A[0][0]*(A[1][1]*A[2][2] - A[1][2]*A[2][1]) -
+        A[0][1]*(A[1][0]*A[2][2] - A[1][2]*A[2][0]) +
+        A[0][2]*(A[1][0]*A[2][1] - A[1][1]*A[2][0]);
+    }
+
+    detResult.innerHTML = "Determinant = " + det;
+}
+
+function solveLinear(){
+    let a = parseFloat(l11.value), b = parseFloat(l12.value), c = parseFloat(l13.value), d = parseFloat(l14.value);
+    let e = parseFloat(l21.value), f = parseFloat(l22.value), g = parseFloat(l23.value), h = parseFloat(l24.value);
+    let i = parseFloat(l31.value), j = parseFloat(l32.value), k = parseFloat(l33.value), l = parseFloat(l34.value);
+
+    let D = a*(f*k - g*j) - b*(e*k - g*i) + c*(e*j - f*i);
+
+    if(D === 0){
+        linearResult.innerHTML = "No unique solution";
+        return;
+    }
+
+    let Dx = d*(f*k - g*j) - b*(h*k - g*l) + c*(h*j - f*l);
+    let Dy = a*(h*k - g*l) - d*(e*k - g*i) + c*(e*l - h*i);
+    let Dz = a*(f*l - h*j) - b*(e*l - h*i) + d*(e*j - f*i);
+
+    linearResult.innerHTML = `
+        x = ${ (Dx/D).toFixed(3) }<br>
+        y = ${ (Dy/D).toFixed(3) }<br>
+        z = ${ (Dz/D).toFixed(3) }
+    `;
+}
+
+// Eigenvalues 2×2
+function eigenSolve(){
+    let a = parseFloat(e11.value), b = parseFloat(e12.value);
+    let c = parseFloat(e21.value), d = parseFloat(e22.value);
+
+    let trace = a + d;
+    let det = a*d - b*c;
+
+    let disc = trace*trace - 4*det;
+    let λ1 = (trace + Math.sqrt(disc)) / 2;
+    let λ2 = (trace - Math.sqrt(disc)) / 2;
+
+    eigenResult.innerHTML = `
+    Eigenvalues:<br>
+    λ₁ = ${λ1.toFixed(3)}<br>
+    λ₂ = ${λ2.toFixed(3)}
+    `;
+}
+
+</script>
+
+</body>
+</html>
